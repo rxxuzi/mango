@@ -1,7 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "api.h"
 #include "console.h"
 #include "stb/stb_image.h"
+#include "stb/stb_image_resize2.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -9,7 +11,7 @@
 #define MAX_WIDTH 256
 #define ALPHA_THRESHOLD 128
 
-int mango[4] = {203, 202, 208, 214};
+int colors[4] = {203, 202, 208, 214};
 
 static void outputBuffer(char* buffer, int length) {
     fwrite(buffer, 1, length, stdout);
@@ -41,7 +43,7 @@ bool mango_is_valid_image_extension(const char *filename) {
             );
 }
 
-bool mango_process(const char* path, int padding) {
+bool mango_process(const char* path, Mango* mango) {
     if (!mango_is_valid_image_extension(path)) {
         c256f(C_ERR, "Error: Invalid file format. Supported formats are PNG, JPEG, BMP, JPG, JFIF, and GIF.\n");
         return false;
@@ -55,15 +57,35 @@ bool mango_process(const char* path, int padding) {
         return false;
     }
 
+    Mango origin = {width, height, mango->p, mango->max_w};
+    *mango = origin;  // Update mango with the original dimensions
+
+    // Calculate new dimensions if max_width is specified
+    if (mango->max_w > 0 && width > mango->max_w) {
+        mango->w = mango->max_w;
+        mango->h = (int)((float)height * mango->max_w / width);
+    }
+
+    // Resize image if necessary
+    unsigned char *resized_img = img;
+    if (mango->w != origin.w || mango->h != origin.h) {
+        resized_img = (unsigned char*)malloc(mango->w * mango->h * 4);
+        if (!stbir_resize_uint8_srgb(img, origin.w, origin.h, 0, resized_img, mango->w, mango->h, 0, 4)) {
+            c256f(C_ERR, "Error in resizing the image\n");
+            stbi_image_free(img);
+            return false;
+        }
+    }
+
     c_clear();
     char buffer[MAX_WIDTH * 20];
     int bufferIndex;
     int lastColor = -1;
 
-    for(int y = 0; y < height; y += padding) {
+    for(int y = 0; y < mango->h; y += mango->p) {
         bufferIndex = 0;
-        for(int x = 0; x < width; x += padding) {
-            unsigned char* p = img + (y * width + x) * 4;
+        for(int x = 0; x < mango->w; x += mango->p) {
+            unsigned char* p = resized_img + (y * mango->w + x) * 4;
             if(p[3] > ALPHA_THRESHOLD) {
                 int a = rgb2xterm(p[0], p[1], p[2]);
                 if (a != lastColor) {
@@ -81,11 +103,14 @@ bool mango_process(const char* path, int padding) {
 
     printf("\x1b[0m\n");
 
-    c256f(mango[0], "Info : \n");
-    c256f(mango[3], "padding : %d\n", padding);
-    c256f(mango[3], "size : %dx%d\n", (width/padding), (height/padding));
-    c256f(mango[3],"origin : %s : (%dx%d)\n", path, width, height);
+    c256f(colors[0], "Info : \n");
+    c256f(colors[3], "padding : %d\n", mango->p);
+    c256f(colors[3], "size : %dx%d\n", (mango->w / mango->p), (mango->h / mango->p));
+    c256f(colors[3], "origin : %s : (%dx%d)\n", path, origin.w, origin.h);
 
+    if (resized_img != img) {
+        free(resized_img);
+    }
     stbi_image_free(img);
     return true;
 }

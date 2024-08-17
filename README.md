@@ -8,6 +8,7 @@ Mango is a command-line tool that converts images into ASCII art and displays th
 
 - Supports multiple image formats (PNG, JPEG, BMP, JPG, JFIF, GIF)
 - Customizable padding for output
+- Adjustable maximum width for resizing large images
 - Colored output using terminal escape sequences
 - Simple and intuitive command-line interface
 
@@ -15,22 +16,20 @@ Mango is a command-line tool that converts images into ASCII art and displays th
 
 - Terminal with color support
 - C compiler (GCC or Clang recommended)
+- Git
 
 ## Setup
 
-Before building the project, you need to download the `stb_image.h` header file:
+Before building the project, you need to clone the `stb` repository to get the required header files:
 
-1. Create a `src/stb` directory in the project root if it doesn't exist:
-   ```
-   mkdir -p src/stb
-   ```
+1. Open a terminal and navigate to the project root directory.
 
-2. Download `stb_image.h` into the `src/stb` directory:
+2. Run the following command to clone the `stb` repository into the `src/stb` directory:
    ```
-   curl -o src/stb/stb_image.h https://raw.githubusercontent.com/nothings/stb/master/stb_image.h
+   git clone https://github.com/nothings/stb src/stb
    ```
 
-   Or if you're using Windows without curl, you can manually download the file from the URL and place it in the `src/stb` directory.
+   This will create a `src/stb` directory containing all the necessary header files, including `stb_image.h` and `stb_image_resize2.h`.
 
 ## Usage
 
@@ -42,15 +41,22 @@ After building the project, you can run Mango with the following syntax:
 
 ### Options
 
-- `-p, --pad <value>`: Set padding (default: 3)
+- `-p, --pad <value>`: Set padding (default: 3, auto-set to 1 if width is specified)
+- `-w, --width <value>`: Set maximum width (default: no limit)
 - `-h, --help`: Display help message
 
-### Example
+### Examples
 
 To convert an image named "example.png" with a padding of 2:
 
 ```
 ./mango -p 2 example.png
+```
+
+To convert an image and set its maximum width to 80 characters:
+
+```
+./mango -w 80 example.png
 ```
 
 ## License
@@ -59,5 +65,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- [stb_image](https://github.com/nothings/stb) library for image loading
+- [stb](https://github.com/nothings/stb) library for image loading and resizing
 - Inspired by various terminal-based image viewers
