@@ -15,15 +15,10 @@ typedef struct {
 } Color;
 
 typedef struct {
-    int width;
-    int height;
-} Size;
-
-typedef struct {
     int w;
     int h;
     int p;
-    int max_w;  // Added max_width as part of the Mango struct
+    int max_w;
 } Mango;
 
 void mango_init(void);

@@ -37,40 +37,6 @@ void c256f(int color, const char *format, ...) {
     printf("\x1b[0m");
 }
 
-void c256gr(int range, int colors[], int size, const char *format, ...) {
-    char buffer[1024];  // Adjust buffer size as needed
-    va_list args;
-    va_start(args, format);
-    vsnprintf(buffer, sizeof(buffer), format, args);
-    va_end(args);
-
-    int len = strlen(buffer);
-    int color_index = 0;
-    int char_count = 0;
-    bool reverse = false;
-
-    for (int i = 0; i < len; i++) {
-        if (char_count % range == 0) {
-            printf("\x1b[38;5;%dm", colors[color_index]);
-
-            if (!reverse) {
-                color_index++;
-                if (color_index >= size - 1) {
-                    reverse = true;
-                }
-            } else {
-                color_index--;
-                if (color_index <= 0) {
-                    reverse = false;
-                }
-            }
-        }
-        putchar(buffer[i]);
-        char_count++;
-    }
-    printf("\x1b[0m");  // Reset color at the end
-}
-
 void c_clear() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -100,19 +66,10 @@ void c_clear() {
     SetConsoleCursorPosition(hConsole, csbi.dwCursorPosition);
 }
 
-Size getConsoleSize() {
+int getConsoleWidth() {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    Size size = {-1, -1};
-
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    if (hConsole == INVALID_HANDLE_VALUE)
-        return size;
-
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-        return size;
-    }
-    size.width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
-    size.height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
-
-    return size;
+    if (hConsole == INVALID_HANDLE_VALUE) return -1;
+    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) return -1;
+    return csbi.srWindow.Right - csbi.srWindow.Left + 1;
 }

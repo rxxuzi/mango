@@ -2,7 +2,7 @@
 
 Mango is a command-line tool that converts images into ASCII art and displays them in the terminal with color support.
 
-![screen shot v1.0](doc/img.png)
+![screen shot v1.2](doc/screenshot-1.2.png)
 
 ## Features
 
@@ -41,23 +41,9 @@ After building the project, you can run Mango with the following syntax:
 
 ### Options
 
-- `-p, --pad <value>`: Set padding (default: 3, auto-set to 1 if width is specified)
-- `-w, --width <value>`: Set maximum width (default: no limit)
+- `-p, --pad <value>`: Set padding (default: 1)
+- `-w, --width <value>`: Set maximum width (default: console width)
 - `-h, --help`: Display help message
-
-### Examples
-
-To convert an image named "example.png" with a padding of 2:
-
-```
-./mango -p 2 example.png
-```
-
-To convert an image and set its maximum width to 80 characters:
-
-```
-./mango -w 80 example.png
-```
 
 ## License
 

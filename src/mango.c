@@ -8,10 +8,9 @@
 #include <string.h>
 #include <ctype.h>
 
-#define MAX_WIDTH 256
 #define ALPHA_THRESHOLD 128
 
-int colors[4] = {203, 202, 208, 214};
+static int colors[4] = {203, 202, 208, 214};
 
 static void outputBuffer(char* buffer, int length) {
     fwrite(buffer, 1, length, stdout);
@@ -60,10 +59,9 @@ bool mango_process(const char* path, Mango* mango) {
     Mango origin = {width, height, mango->p, mango->max_w};
     *mango = origin;  // Update mango with the original dimensions
 
-    // Calculate new dimensions if max_width is specified
-    if (mango->max_w > 0 && width > mango->max_w) {
+    if (mango->w > mango->max_w) {
+        mango->h = (int)((float)mango->h * mango->max_w / mango->w);
         mango->w = mango->max_w;
-        mango->h = (int)((float)height * mango->max_w / width);
     }
 
     // Resize image if necessary
@@ -78,7 +76,7 @@ bool mango_process(const char* path, Mango* mango) {
     }
 
     c_clear();
-    char buffer[MAX_WIDTH * 20];
+    char buffer[mango->max_w * 20];
     int bufferIndex;
     int lastColor = -1;
 
@@ -92,7 +90,7 @@ bool mango_process(const char* path, Mango* mango) {
                     bufferIndex += sprintf(buffer + bufferIndex, "\x1b[38;5;%dm", a);
                     lastColor = a;
                 }
-                buffer[bufferIndex++] = '@';
+                buffer[bufferIndex++] = '#';
             } else {
                 buffer[bufferIndex++] = ' ';
             }

@@ -23,7 +23,8 @@ void c256(int color, const char *format);
 void c256f(int color, const char *format, ...);
 void c256gr(int range, int colors[], int size, const char *format, ...);
 void c_clear();
-Size getConsoleSize();
+int getConsoleWidth();
+
 #ifdef __cplusplus
 }
 #endif
