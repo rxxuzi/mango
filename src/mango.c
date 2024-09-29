@@ -16,10 +16,6 @@ static void outputBuffer(char* buffer, int length) {
     fwrite(buffer, 1, length, stdout);
 }
 
-void mango_init(void) {
-    enableVirtualTerminalProcessing();
-}
-
 bool mango_is_valid_image_extension(const char *filename) {
     const char *extension = strrchr(filename, '.');
     if (extension == NULL) {
@@ -44,7 +40,7 @@ bool mango_is_valid_image_extension(const char *filename) {
 
 bool mango_process(const char* path, Mango* mango) {
     if (!mango_is_valid_image_extension(path)) {
-        c256f(C_ERR, "Error: Invalid file format. Supported formats are PNG, JPEG, BMP, JPG, JFIF, and GIF.\n");
+        c_256f(C_ERR, "Error: Invalid file format. Supported formats are PNG, JPEG, BMP, JPG, JFIF, and GIF.\n");
         return false;
     }
 
@@ -52,7 +48,7 @@ bool mango_process(const char* path, Mango* mango) {
     unsigned char *img = stbi_load(path, &width, &height, &channels, 4);
 
     if(img == NULL) {
-        c256f(C_ERR, "Error in loading the image\n");
+        c_256f(C_ERR, "Error in loading the image\n");
         return false;
     }
 
@@ -69,7 +65,7 @@ bool mango_process(const char* path, Mango* mango) {
     if (mango->w != origin.w || mango->h != origin.h) {
         resized_img = (unsigned char*)malloc(mango->w * mango->h * 4);
         if (!stbir_resize_uint8_srgb(img, origin.w, origin.h, 0, resized_img, mango->w, mango->h, 0, 4)) {
-            c256f(C_ERR, "Error in resizing the image\n");
+            c_256f(C_ERR, "Error in resizing the image\n");
             stbi_image_free(img);
             return false;
         }
@@ -101,10 +97,10 @@ bool mango_process(const char* path, Mango* mango) {
 
     printf("\x1b[0m\n");
 
-    c256f(colors[0], "Info : \n");
-    c256f(colors[3], "padding : %d\n", mango->p);
-    c256f(colors[3], "size : %dx%d\n", (mango->w / mango->p), (mango->h / mango->p));
-    c256f(colors[3], "origin : %s : (%dx%d)\n", path, origin.w, origin.h);
+    c_256f(colors[0], "Info : \n");
+    c_256f(colors[3], "padding : %d\n", mango->p);
+    c_256f(colors[3], "size : %dx%d\n", (mango->w / mango->p), (mango->h / mango->p));
+    c_256f(colors[3], "origin : %s : (%dx%d)\n", path, origin.w, origin.h);
 
     if (resized_img != img) {
         free(resized_img);

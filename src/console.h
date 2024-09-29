@@ -3,29 +3,38 @@
 #define CONSOLE_H
 
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stdarg.h>
-#include <windows.h>
-#include "api.h"
+typedef struct RGB {
+    int r;
+    int g;
+    int b;
+} RGB;
 
-void enableVirtualTerminalProcessing();
-
-extern HANDLE console;
-extern COORD initialPosition;
-
-void initCursorPosition(void);
-void resetCursorPosition(void);
-void c256(int color, const char *format);
-void c256f(int color, const char *format, ...);
-void c256gr(int range, int colors[], int size, const char *format, ...);
-void c_clear();
-int getConsoleWidth();
+// Function declarations
+void evtp(void);
+void c_clear(void);
+int getConsoleWidth(void);
+void c_rgbf(RGB color, const char *format, ...);
+void c_256f(int color, const char *format, ...);
+void c_hexf(const char *hex, const char *format, ...);
+RGB newRGB(int r, int g, int b);
+RGB hex_to_rgb(const char *hex);
 
 #ifdef __cplusplus
 }
 #endif
+
 #endif // CONSOLE_H

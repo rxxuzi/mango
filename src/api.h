@@ -21,7 +21,6 @@ typedef struct {
     int max_w;
 } Mango;
 
-void mango_init(void);
 bool mango_process(const char* path, Mango* mango);
 bool mango_is_valid_image_extension(const char *filename);
 

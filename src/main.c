@@ -4,23 +4,32 @@
 #include "api.h"
 #include "console.h"
 
-#define VERSION "1.2"
+#define VERSION "2.0"
+#define BUILD_DATE __DATE__
 
 static Mango mango = {0, 0, 1, 0};
 
+void print_version(void) {
+    c_hexf("#ff8243","mango %s\n",VERSION);
+    printf("Built on %s\n", BUILD_DATE);
+    printf("Copyright (c) 2024 rxxuzi\n");
+    printf("This is free software; see the source for copying conditions.\n");
+    printf("There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
+}
+
+
 void help(void) {
-    c256f(C_INFO, "mango.exe!\n");
-    c256f(C_INFO, "Usage: mango.exe [options] <file-path>\n");
-    c256f(C_INFO, "Options:\n");
-    c256f(C_INFO, "  -p, --pad <value>    Set padding (default: %d)\n", mango.p);
-    c256f(C_INFO, "  -w, --width <value>  Set maximum width (default: console width)\n");
-    c256f(C_INFO, "  -h, --help           Display this help message\n");
-    c256f(C_INFO, "  -v, --version        Display version information\n");
+    c_hexf("#ff8243","mango %s\n",VERSION);
+    printf("Usage: mango [options] <file-path>\n");
+    c_hexf("#feb435","Options:\n");
+    printf("  -p, --pad <value>    Set padding (default: %d)\n", mango.p);
+    printf("  -w, --width <value>  Set maximum width (default: console width)\n");
+    printf("  -h, --help           Display this help message\n");
+    printf("  -v, --version        Display version information\n");
 }
 
 int main(int argc, char **argv) {
-    mango_init();
-
+    evtp();
     if (argc == 1) {
         help();
         return 1;
@@ -45,7 +54,7 @@ int main(int argc, char **argv) {
                 char *endptr;
                 long pad_value = strtol(optarg, &endptr, 10);
                 if (*endptr != '\0' || pad_value < 1 || pad_value > INT_MAX) {
-                    c256f(C_ERR, "Error: Invalid padding value\n");
+                    c_256f(C_ERR, "Error: Invalid padding value\n");
                     help();
                     return 1;
                 }
@@ -57,7 +66,7 @@ int main(int argc, char **argv) {
                 char *endptr;
                 long width_value = strtol(optarg, &endptr, 10);
                 if (*endptr != '\0' || width_value < 1 || width_value > INT_MAX) {
-                    c256f(C_ERR, "Error: Invalid width value\n");
+                    c_256f(C_ERR, "Error: Invalid width value\n");
                     help();
                     return 1;
                 }
@@ -69,14 +78,14 @@ int main(int argc, char **argv) {
                 help();
                 return 0;
             case 'v':
-                c256f(C_INFO,"mango.exe version %s\n", VERSION);
+                print_version();
                 return 0;
             case '?':
-                c256f(C_ERR, "Error: Unknown option or missing argument\n");
+                c_256f(C_ERR, "Error: Unknown option or missing argument\n");
                 help();
                 return 1;
             default:
-                c256f(C_ERR, "Error: Unexpected option\n");
+                c_256f(C_ERR, "Error: Unexpected option\n");
                 help();
                 return 1;
         }
@@ -86,7 +95,7 @@ int main(int argc, char **argv) {
     if (!user_specified_width) {
         mango.max_w = getConsoleWidth();
         if (mango.max_w == -1) {
-            c256f(C_ERR, "Error: Unable to get console width\n");
+            c_256f(C_ERR, "Error: Unable to get console width\n");
             return 1;
         }
     }
@@ -94,7 +103,7 @@ int main(int argc, char **argv) {
     if (optind < argc) {
         path = argv[optind];
     } else {
-        c256f(C_ERR, "Error: No input file specified\n");
+        c_256f(C_ERR, "Error: No input file specified\n");
         help();
         return 1;
     }
