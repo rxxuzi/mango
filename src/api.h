@@ -19,6 +19,7 @@ typedef struct {
     int h;
     int p;
     int max_w;
+    bool use_true_color;
 } Mango;
 
 bool mango_process(const char* path, Mango* mango);

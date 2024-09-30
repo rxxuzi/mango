@@ -4,10 +4,10 @@
 #include "api.h"
 #include "console.h"
 
-#define VERSION "2.0"
+#define VERSION "2.1"
 #define BUILD_DATE __DATE__
 
-static Mango mango = {0, 0, 1, 0};
+static Mango mango = {0, 0, 1, 0, false};
 
 void print_version(void) {
     c_hexf("#ff8243","mango %s\n",VERSION);
@@ -17,16 +17,17 @@ void print_version(void) {
     printf("There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 }
 
-
 void help(void) {
     c_hexf("#ff8243","mango %s\n",VERSION);
     printf("Usage: mango [options] <file-path>\n");
     c_hexf("#feb435","Options:\n");
     printf("  -p, --pad <value>    Set padding (default: %d)\n", mango.p);
     printf("  -w, --width <value>  Set maximum width (default: console width)\n");
+    printf("  -t, --true-color     Use true color (16 million colors) instead of 256 colors\n");
     printf("  -h, --help           Display this help message\n");
     printf("  -v, --version        Display version information\n");
 }
+
 
 int main(int argc, char **argv) {
     evtp();
@@ -37,18 +38,22 @@ int main(int argc, char **argv) {
 
     int c;
     char *path = NULL;
-    int user_specified_width = 0;    // Flag to check if user specified width
+    int user_specified_width = 0;
 
     static struct option long_options[] = {
-            {"pad",    required_argument, 0, 'p'},
-            {"width",  required_argument, 0, 'w'},
-            {"help",   no_argument,       0, 'h'},
-            {"version", no_argument, 0, 'v'},
+            {"pad",        required_argument, 0, 'p'},
+            {"width",      required_argument, 0, 'w'},
+            {"true-color", no_argument,       0, 't'},
+            {"help",       no_argument,       0, 'h'},
+            {"version",    no_argument,       0, 'v'},
             {0, 0, 0, 0}
     };
 
-    while ((c = getopt_long(argc, argv, "p:w:hv", long_options, NULL)) != -1) {
+    while ((c = getopt_long(argc, argv, "p:w:thv", long_options, NULL)) != -1) {
         switch (c) {
+            case 't':
+                mango.use_true_color = true;
+                break;
             case 'p':
             {
                 char *endptr;

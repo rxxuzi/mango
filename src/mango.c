@@ -52,7 +52,7 @@ bool mango_process(const char* path, Mango* mango) {
         return false;
     }
 
-    Mango origin = {width, height, mango->p, mango->max_w};
+    Mango origin = {width, height, mango->p, mango->max_w, mango->use_true_color};
     *mango = origin;  // Update mango with the original dimensions
 
     if (mango->w > mango->max_w) {
@@ -70,21 +70,31 @@ bool mango_process(const char* path, Mango* mango) {
             return false;
         }
     }
-
     c_clear();
-    char buffer[mango->max_w * 20];
+    char buffer[mango->max_w * 40];  // Increased buffer size for bold and RGB codes
     int bufferIndex;
     int lastColor = -1;
+    int lastR = -1, lastG = -1, lastB = -1;
+
+    bufferIndex = sprintf(buffer, "\x1b[1m");
 
     for(int y = 0; y < mango->h; y += mango->p) {
-        bufferIndex = 0;
         for(int x = 0; x < mango->w; x += mango->p) {
             unsigned char* p = resized_img + (y * mango->w + x) * 4;
             if(p[3] > ALPHA_THRESHOLD) {
-                int a = rgb2xterm(p[0], p[1], p[2]);
-                if (a != lastColor) {
-                    bufferIndex += sprintf(buffer + bufferIndex, "\x1b[38;5;%dm", a);
-                    lastColor = a;
+                if (mango->use_true_color) {
+                    if (p[0] != lastR || p[1] != lastG || p[2] != lastB) {
+                        bufferIndex += sprintf(buffer + bufferIndex, "\x1b[38;2;%d;%d;%dm", p[0], p[1], p[2]);
+                        lastR = p[0];
+                        lastG = p[1];
+                        lastB = p[2];
+                    }
+                } else {
+                    int a = rgb2xterm(p[0], p[1], p[2]);
+                    if (a != lastColor) {
+                        bufferIndex += sprintf(buffer + bufferIndex, "\x1b[38;5;%dm", a);
+                        lastColor = a;
+                    }
                 }
                 buffer[bufferIndex++] = '#';
             } else {
@@ -93,6 +103,7 @@ bool mango_process(const char* path, Mango* mango) {
         }
         buffer[bufferIndex++] = '\n';
         outputBuffer(buffer, bufferIndex);
+        bufferIndex = 0;  // Reset buffer index for the next line
     }
 
     printf("\x1b[0m\n");
@@ -101,6 +112,7 @@ bool mango_process(const char* path, Mango* mango) {
     c_256f(colors[3], "padding : %d\n", mango->p);
     c_256f(colors[3], "size : %dx%d\n", (mango->w / mango->p), (mango->h / mango->p));
     c_256f(colors[3], "origin : %s : (%dx%d)\n", path, origin.w, origin.h);
+    c_256f(colors[3],"color mode : %s\n", mango->use_true_color ? "256-Colors" : "True-Color");
 
     if (resized_img != img) {
         free(resized_img);

@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.1.0
+### Added
+- True Color support for more accurate color representation (16 million colors)
+- New command line option -t or --true-color to enable True Color mode
+- Display of current color mode (True Color or 256 colors) in info output
+- Output characters are now displayed in bold for improved visibility
+
+## Changed
+- Optimized buffer usage for large images
+
 ## v2.0.0
 ### Added
 - Linux support for cross-platform compatibility
