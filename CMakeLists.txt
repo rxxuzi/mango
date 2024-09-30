@@ -10,3 +10,5 @@ add_executable(mango
         src/console.c
         src/mango.c
 )
+
+target_link_libraries(mango m)
